@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Trailer</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+</style>
+</head>
+<body>
+<script>
+/* Trailer wrapper. YouTube's embedded player refuses to play when the page
+   that embeds it has no web address to identify itself with (a TV app runs
+   from local files, so it has none: "Error 153 - video player configuration
+   error"). Loading the player from this page - which does have an address -
+   fixes that. The TV app points an iframe here:  ?v=<videoId>[&mode=bg]      */
+(function () {
+  var q = {};
+  location.search.replace(/^\?/, "").split("&").forEach(function (p) {
+    var i = p.indexOf("="); if (i > 0) q[decodeURIComponent(p.slice(0, i))] = decodeURIComponent(p.slice(i + 1));
+  });
+  var id = String(q.v || "").replace(/[^A-Za-z0-9_-]/g, "");
+  if (id.length !== 11) return;
+  var src = "https://www.youtube.com/embed/" + id + "?autoplay=1&rel=0&playsinline=1";
+  if (q.mode === "bg") {            // muted, looping, chrome-less: the ambient trailer behind the Home banner
+    src += "&mute=1&controls=0&showinfo=0&modestbranding=1&iv_load_policy=3&disablekb=1&fs=0&loop=1&playlist=" + id;
+  }
+  var f = document.createElement("iframe");
+  f.src = src; f.allow = "autoplay; encrypted-media"; f.setAttribute("allowfullscreen", "");
+  document.body.appendChild(f);
+})();
+</script>
+</body>
+</html>
